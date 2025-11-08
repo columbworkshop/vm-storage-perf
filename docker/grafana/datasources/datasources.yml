@@ -1,0 +1,16 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    url: http://prometheus:9090 # Prometheus service in docker-compose
+    access: proxy
+    isDefault: true
+    version: 1
+    editable: true
+  - name: Loki
+    type: loki
+    url: http://loki:3100 # Loki service in docker-compose
+    access: proxy
+    version: 1
+    editable: true

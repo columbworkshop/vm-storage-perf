@@ -14,6 +14,7 @@ class FIOAnalyzer:
     def __init__(self, results_dir: str = "fio_results"):
         self.results_dir = Path(results_dir)
         self.history_file = self.results_dir / "fio_history.json"
+
         
     def load_history(self):
         """Загрузка истории тестов"""
@@ -56,8 +57,12 @@ class FIOAnalyzer:
         
         # Сохранение в CSV
         csv_file = self.results_dir / "fio_metrics_timeseries.csv"
-        df.to_csv(csv_file, index=False)
-        print(f"Метрики сохранены в: {csv_file}")
+        if not csv_file.exists():
+            df.to_csv(csv_file, index=False, mode='a')
+            print(f"Метрики сохранены в: {csv_file}")
+        else:
+            df.to_csv(csv_file, index=False, mode='a', header=False)
+            print(f"Метрики сохранены в: {csv_file}")
         
         # Создание графиков
         self.create_plots(df)
