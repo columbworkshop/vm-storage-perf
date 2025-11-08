@@ -150,8 +150,8 @@ class FIOMonitor:
             read_stats = job.get("read", {})
             write_stats = job.get("write", {})
             
-            self.logger.info(f"Read bw = {read_stats.get("bw")}")
-            self.logger.info(f"Write bw = {write_stats.get("bw")}")
+            #self.logger.info(f"Read bw = {read_stats.get('bw')}")
+            #self.logger.info(f"Write bw = { write_stats.get('bw')}")
 
             job_results = {
                 "read": {
