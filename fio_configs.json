@@ -1,0 +1,19 @@
+[
+    {
+        "name": "postgres_oltp_8k",
+        "parameters": {
+            "ioengine": "libaio",
+            "direct": 1,
+            "rw": "randrw",
+            "rwmixread": 60,
+            "bs": "8k",
+            "iodepth": 8,
+            "size": "2G",
+            "runtime": 120,
+            "numjobs": 4,
+            "filename": "/dev/vdb",
+            "output-format": "json",
+            "group_reporting": ""
+        }
+    }
+]
