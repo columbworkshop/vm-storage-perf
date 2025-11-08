@@ -16,6 +16,8 @@ from pathlib import Path
 import pandas as pd
 from typing import Dict, List, Optional
 
+import fio_analyzer
+
 class FIOMonitor:
     def __init__(self, config_file: str = None, output_dir: str = "fio_results"):
         self.output_dir = Path(output_dir)
@@ -27,6 +29,7 @@ class FIOMonitor:
         # Конфигурация тестов
         self.configs = self.load_configs(config_file)
         
+        self.analyzer = fio_analyzer.FIOAnalyzer()
         # История результатов
         self.history = []
         
@@ -61,7 +64,7 @@ class FIOMonitor:
                     "iodepth": 32,
                     "size": "1G",
                     "runtime": 120,
-                    "filename": "/dev/vdb",
+                    "directory": "/fio/",
                     "output-format": "json"
                 }
             }
@@ -80,8 +83,28 @@ class FIOMonitor:
             if key != "name":
                 cmd.extend([f"--{key}", str(value)])
         
+        # очистка каталога
+        try:
+            cmd_cleandir = ["rm", "-rf", parameters["directory"] + "*"]
+            self.logger.info(f"Запуск очистки каталога: {cmd_cleandir}")
+            res = subprocess.run(
+                cmd_cleandir,
+                capture_output=True,
+                text=True,
+                timeout=parameters.get("runtime", 120) + 30
+            )
+            
+            if res.returncode != 0:
+                self.logger.error(f"Ошибка очистки каталога: {res.stderr}")
+                return None
+        except Exception as e:
+            self.logger.error(f"Неожиданная ошибка при очистке каталога: {e}")
+            return None
+        #
         try:
             # Запуск FIO
+            self.logger.info(f"Запуск FIO: {cmd}")
+            #
             result = subprocess.run(
                 cmd,
                 capture_output=True,
@@ -180,7 +203,13 @@ class FIOMonitor:
         
         self.logger.info(f"Результаты сохранены в: {filename}")
         
+        # u
+        h = []
+        h.append(results)
+        self.analyzer.create_timeseries_analysis(h)
+
         # Добавление в историю
+        #self.history.clear() 
         self.history.append(results)
         
         # Сохранение сводной истории
@@ -258,6 +287,7 @@ class FIOMonitor:
         self.logger.info(f"Запуск мониторинга с интервалом {interval_minutes} минут")
         
         cycle_count = 0
+        analyzer = fio_analyzer.FIOAnalyzer()
         try:
             while cycles is None or cycle_count < cycles:
                 cycle_count += 1
@@ -268,7 +298,7 @@ class FIOMonitor:
                     results = self.run_fio_test(config)
                     if results:
                         self.save_results(results)
-                
+                        
                 # Генерация отчета после каждого цикла
                 self.generate_report()
                 

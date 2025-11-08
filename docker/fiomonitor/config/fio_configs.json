@@ -1,0 +1,35 @@
+ [
+    {
+        "name": "randrw_60r_40w_8k_qd32_nj1",
+        "parameters": {
+            "ioengine": "libaio",
+            "direct": 1,
+            "rw": "randrw",
+            "rwmixread": 60,
+            "bs": "8k",
+            "iodepth": 32,
+            "numjobs": 1,
+            "size": "1G",
+            "runtime": 120,
+            "directory": "/fio/",
+            "output-format": "json"
+        }
+    },
+
+    {
+        "name": "randrw_60r_40w_4k_qd8_nj2",
+        "parameters": {
+            "ioengine": "libaio",
+            "direct": 1,
+            "rw": "randrw",
+            "rwmixread": 60,
+            "bs": "4k",
+            "iodepth": 8,
+            "numjobs": 2,
+            "size": "1G",
+            "runtime": 120,
+            "directory": "/fio/",
+            "output-format": "json"
+        }
+    }
+]

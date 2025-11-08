@@ -9,12 +9,29 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import seaborn as sns
 from datetime import datetime
+import logging
+import sys
 
 class FIOAnalyzer:
     def __init__(self, results_dir: str = "fio_results"):
         self.results_dir = Path(results_dir)
         self.history_file = self.results_dir / "fio_history.json"
 
+        # Настройка логирования
+        self.setup_logging()
+
+    #
+    def setup_logging(self):
+        """Настройка системы логирования"""
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s - %(levelname)s - %(message)s',
+            handlers=[
+                logging.FileHandler(self.results_dir / 'fio_analyzer.log'),
+                logging.StreamHandler(sys.stdout)
+            ]
+        )
+        self.logger = logging.getLogger(__name__)
         
     def load_history(self):
         """Загрузка истории тестов"""
@@ -25,12 +42,12 @@ class FIOAnalyzer:
         with open(self.history_file, 'r') as f:
             return json.load(f)
     
-    def create_timeseries_analysis(self):
+    def create_timeseries_analysis(self, history = None):
         """Создание анализа временных рядов"""
-        history = self.load_history()
-        if not history:
-            return
-        
+        if history == None:
+            history = self.load_history()
+            if not history:
+                return
         # Преобразование в DataFrame
         data = []
         for result in history:
@@ -59,10 +76,10 @@ class FIOAnalyzer:
         csv_file = self.results_dir / "fio_metrics_timeseries.csv"
         if not csv_file.exists():
             df.to_csv(csv_file, index=False, mode='a')
-            print(f"Метрики сохранены в: {csv_file}")
         else:
             df.to_csv(csv_file, index=False, mode='a', header=False)
-            print(f"Метрики сохранены в: {csv_file}")
+        #
+        self.logger.info(f"Метрики сохранены в: {csv_file}")
         
         # Создание графиков
         self.create_plots(df)
@@ -125,12 +142,12 @@ class FIOAnalyzer:
         plt.tight_layout()
         plot_file = self.results_dir / "performance_plots.png"
         plt.savefig(plot_file, dpi=300, bbox_inches='tight')
-        print(f"Графики сохранены в: {plot_file}")
+        self.logger.info(f"Графики сохранены в: {plot_file}")
         
         # Сохранение статистики
         stats_file = self.results_dir / "performance_statistics.json"
         summary_stats.to_json(stats_file, indent=2)
-        print(f"Статистика сохранена в: {stats_file}")
+        self.logger.info(f"Статистика сохранена в: {stats_file}")
 
 if __name__ == "__main__":
     analyzer = FIOAnalyzer()

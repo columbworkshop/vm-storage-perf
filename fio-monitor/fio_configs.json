@@ -11,7 +11,7 @@
             "size": "2G",
             "runtime": 120,
             "numjobs": 4,
-            "filename": "/dev/vdb",
+            "directory": "/fio/",
             "output-format": "json",
             "group_reporting": ""
         }

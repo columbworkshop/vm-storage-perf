@@ -15,9 +15,12 @@ services:
     networks:
       - monitoring_network
 
-  fio-metrics-exporter:
-    image: fio-metrics-exporter:1.0.1
-    container_name: fio-metrics-exporter
+  fio-monitor:
+    image: fio-monitor:1.0.1
+    container_name: fio-monitor
+    volumes:
+      - ./fiomonitor/config/fio_configs.json:/app/fio_configs.json
+      - fio-monitor_data:/fio
     env_file:
       - ./.env
     ports:
@@ -69,10 +72,32 @@ services:
     networks:
       - monitoring_network
 
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest # Use a specific version in production
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otelcollector/config/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+    depends_on:
+      - jaeger
+    networks:
+      - monitoring_network
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686" # Jaeger UI
+      - "14250:14250" # Jaeger gRPC collector
+    networks:
+      - monitoring_network
+
 volumes:
   grafana_data:
   prometheus_data:
   loki_data:
+  fio-monitor_data:
 
 networks:
   monitoring_network:
