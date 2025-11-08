@@ -150,11 +150,14 @@ class FIOMonitor:
             read_stats = job.get("read", {})
             write_stats = job.get("write", {})
             
+            self.logger.info(f"Read bw = {read_stats.get("bw")}")
+            self.logger.info(f"Write bw = {write_stats.get("bw")}")
+
             job_results = {
                 "read": {
                     "iops": read_stats.get("iops", 0),
                     "bw_bytes": read_stats.get("bw_bytes", 0),
-                    "bw_kbps": read_stats.get("bw_kbps", 0),
+                    "bw_kbps": read_stats.get("bw", 0),
                     "latency_ns": {
                         "min": read_stats.get("lat_ns", {}).get("min", 0),
                         "max": read_stats.get("lat_ns", {}).get("max", 0),
@@ -166,7 +169,7 @@ class FIOMonitor:
                 "write": {
                     "iops": write_stats.get("iops", 0),
                     "bw_bytes": write_stats.get("bw_bytes", 0),
-                    "bw_kbps": write_stats.get("bw_kbps", 0),
+                    "bw_kbps": write_stats.get("bw", 0),
                     "latency_ns": {
                         "min": write_stats.get("lat_ns", {}).get("min", 0),
                         "max": write_stats.get("lat_ns", {}).get("max", 0),
